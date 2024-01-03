@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtech.comparison.ibatis.mapper.StdModelsMapper">
+
+    <resultMap id="stdModMap" type="WbComparisonStdModel">
+        <result column="mc_id" property="stdMcId"/>
+        <result column="line_no" property="stdLineNo"/>
+        <result column="lead_x" property="stdLeadX"/>
+        <result column="lead_y" property="stdLeadY"/>
+        <result column="pad_x" property="stdPadX"/>
+        <result column="pad_y" property="stdPadY"/>
+        <result column="lead_diff" property="stdLeadDiff"/>
+        <result column="pad_diff" property="stdPadDiff"/>
+        <result column="lead_threshold" property="leadThreshold"/>
+        <result column="pad_threshold" property="padThreshold"/>
+        <result column="wire_len" property="stdWireLen"/>
+    </resultMap>
+
+    <select id="getAll" resultMap="stdModMap">
+        select a.mc_id,
+               line_no,
+               pad_x,
+               pad_y,
+               lead_x,
+               lead_y,
+               lead_threshold,
+               pad_threshold,
+               lead_diff,
+               pad_diff,
+               wire_len
+        from qtech_wb_comparison_std_mod_detail a
+                 left join qtech_wb_comparison_std_mod_info b on a.mc_id = b.mc_id
+        where b.status = 1
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+mvn install:install-file -Dfile="C:\Users\zhilin.gao\Desktop\spark-redis_2.11-2.4.2.jar" -DgroupId="com.redislabs" -DartifactId="spark-redis_2.11" -Dversion=2.4.2 -Dpackaging=jar
+
+
+
+<dependency>
+    <groupId>com.redislabs</groupId>
+    <artifactId>spark-redis_2.11</artifactId>
+    <version>2.4.2</version>
+</dependency>
+
+
+以下载的jar为例
+mvn install:install-file
+-Dfile=C:\Users\zhilin.gao\Desktop\spark-redis_2.11-2.4.2.jar（jar包的全称，还可以使用全路径这样可以直接使用命令不用进入文件目录中运行命令了）
+-DgroupId=com.redislabs （jar包的groupId）
+-DartifactId=spark-redis_2.11 （jar包的artifactId）
+-Dversion=2.4.2（jar包的版本号）
+-Dpackaging=jar (jar包的文件格式)

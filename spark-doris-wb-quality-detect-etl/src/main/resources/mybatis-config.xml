@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <properties resource="WbComparison.properties">
+    </properties>
+
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="logImpl" value="LOG4J2"/>
+    </settings>
+
+    <typeAliases>
+        <package name="com.qtech.comparison.ibatis.pojo"/>
+    </typeAliases>
+
+    <environments default="druid_postgres">
+        <environment id="druid_doris">
+            <transactionManager type="JDBC"/>
+            <dataSource type="com.qtech.comparison.ibatis.config.DruidDataSourceFactory">
+                <property name="jdbcUrl" value="${jdbc.doris.url}"/>
+                <property name="driverClass" value="${jdbc.doris.driver}"/>
+                <property name="username" value="${jdbc.doris.user}"/>
+                <property name="password" value="${jdbc.doris.pwd}"/>
+                <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+                <property name="minEvictableIdleTimeMillis" value="30000"/>
+                <property name="validationQuery" value="select 1"/>
+                <property name="testWhileIdle" value="true"/>
+                <property name="testOnBorrow" value="false"/>
+                <property name="testOnReturn" value="false"/>
+                <!-- 初始连接数，默认为0 -->
+                <property name="initialSize" value="1"/>
+                <!-- 最大连接数，默认为8 -->
+                <property name="maxActive" value="20"/>
+                <!-- 最小闲置数 -->
+                <property name="minIdle" value="2"/>
+                <!-- 获取连接的最大等待时间，单位为毫秒 -->
+                <property name="maxWait" value="60000"/>
+                <!-- 缓存PreparedStatement，默认为false
+                <property name="poolPreparedStatements" value="true"/>-->
+                <!-- 缓存PreparedStatement的最大数量，默认-1（不缓存）。大于0时会自动开启缓存PreparedStatement，所以可以省略上一句设置 -->
+                <!--<property name="maxOpenPreparedStatements" value="20"/>-->
+            </dataSource>
+        </environment>
+
+        <environment id="druid_postgres">
+            <transactionManager type="JDBC"/>
+            <dataSource type="com.qtech.comparison.ibatis.config.DruidDataSourceFactory">
+                <property name="jdbcUrl" value="${jdbc.postgres.url}"/>
+                <property name="driverClass" value="${jdbc.postgres.driver}"/>
+                <property name="username" value="${jdbc.postgres.user}"/>
+                <property name="password" value="${jdbc.postgres.pwd}"/>
+                <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+                <property name="minEvictableIdleTimeMillis" value="30000"/>
+                <property name="validationQuery" value="select 1"/>
+                <property name="testWhileIdle" value="true"/>
+                <property name="testOnBorrow" value="false"/>
+                <property name="testOnReturn" value="false"/>
+                <!-- 初始连接数，默认为0 -->
+                <property name="initialSize" value="1"/>
+                <!-- 最大连接数，默认为8 -->
+                <property name="maxActive" value="20"/>
+                <!-- 最小闲置数 -->
+                <property name="minIdle" value="2"/>
+                <!-- 获取连接的最大等待时间，单位为毫秒 -->
+                <property name="maxWait" value="60000"/>
+                <!-- 缓存PreparedStatement，默认为false
+                <property name="poolPreparedStatements" value="true"/>-->
+                <!-- 缓存PreparedStatement的最大数量，默认-1（不缓存）。大于0时会自动开启缓存PreparedStatement，所以可以省略上一句设置 -->
+                <!--<property name="maxOpenPreparedStatements" value="20"/>-->
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <!--第一种：使用相对路径进行配置。示例代码如下：-->
+        <!--<mapper resource="org/mybatis/mappers/UserMapper.xml"/>-->
+        <!--第二种：使用绝对路径进行配置。示例代码如下：-->
+        <!--<mapper url="file:///var/mappers/UserMapper.xml"/>-->
+        <!--第三种：使用接口信息进行配置。示例代码如下：-->
+        <!--<mapper class="org.mybatis.mappers.UserMapper"/>-->
+        <!--第四种：使用接口所在包进行配置。示例如下：-->
+        <!--<package name="org.mybatis.mappers"/>-->
+        <!--以包为单位引入映射文件，resources下的包以“/”分割-->
+        <package name="com.qtech.comparison.ibatis.mapper"/>
+    </mappers>
+
+</configuration>

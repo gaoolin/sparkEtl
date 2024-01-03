@@ -1,0 +1,9 @@
+mvn clean scala:compile compile package -DskipTests
+
+
+
+
+shade 插件打包 直接在maven工具栏操作会导致打包失败
+
+需要在终端命令行中执行命令：
+mvn package

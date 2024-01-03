@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>sparkEtl</artifactId>
+        <groupId>com.qtech</groupId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>spark-baseinfo-kudu-doris-etl</artifactId>
+    <version>1.0</version>
+
+    <name>spark-baseinfo-kudu-doris-etl</name>
+    <!-- FIXME change it to the project's website -->
+    <url>http://www.example.com</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.qtech</groupId>
+            <artifactId>etl-common</artifactId>
+            <version>2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.doris</groupId>
+            <artifactId>spark-doris-connector-3.3_2.12</artifactId>
+            <version>1.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.qtech.impala</groupId>
+            <artifactId>impalaJDBC41</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.12</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <!--部分需要打包到jar包里面的依赖-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <!--部分需要打包到jar包里面的依赖-->
+                            <include>org.projectlombok:lombok</include>
+                            <include>com.qtech:etl-common</include>
+                            <include>com.qtech.impala:impalaJDBC41</include>
+                        </includes>
+                    </artifactSet>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

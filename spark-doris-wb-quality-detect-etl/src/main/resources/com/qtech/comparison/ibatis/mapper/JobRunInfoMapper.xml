@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtech.comparison.ibatis.mapper.JobRunInfoMapper">
+
+    <resultMap id="jobRunDtResultType" type="JobRunInfo">
+        <result column="job_name" property="jobName" />
+        <result column="pre_run_time" property="preRunTime" />
+        <result column="status" property="status" />
+    </resultMap>
+
+    <select id="getJobRunDt" resultMap="jobRunDtResultType">
+        select pre_run_time from qtech_wb.public.job_run_status where job_name = #{jobName}
+    </select>
+
+    <select id="getJobRunStatus" resultMap="jobRunDtResultType">
+        select status from qtech_wb.public.job_run_status where job_name = #{jobName}
+    </select>
+
+    <insert id="updateJobRunDt">
+        update qtech_wb.public.job_run_status set pre_run_time = #{preRunTime} where job_name = #{jobName}
+    </insert>
+
+    <update id="updateJobRunStatus">
+        update qtech_wb.public.job_run_status set status = #{status} where job_name = #{jobName}
+    </update>
+
+</mapper>

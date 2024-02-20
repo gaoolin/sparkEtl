@@ -5,6 +5,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/spark-doris-wb-quality-detect-etl/pom.xml" />
+        <option value="$PROJECT_DIR$/spark-impala-doris-detail-etl/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

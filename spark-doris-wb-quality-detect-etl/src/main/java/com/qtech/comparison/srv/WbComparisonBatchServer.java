@@ -3,8 +3,8 @@ package com.qtech.comparison.srv;
 
 import com.alibaba.fastjson.JSONObject;
 import com.qtech.comparison.dpp.batch.WbComparisonBatchEngine;
-import com.qtech.etl.utils.HttpConnectUtils;
 import com.qtech.etl.exception.biz.comparison.SparkDppException;
+import com.qtech.etl.utils.HttpConnectUtils;
 import com.qtech.etl.utils.SparkInitConf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.SparkConf;
@@ -25,7 +25,7 @@ public class WbComparisonBatchServer {
     private void initSpark() throws SparkDppException {
         // 初始话Spark相关配置
         SparkConf sparkConf = SparkInitConf.initSparkConfigs();
-        sparkConf.setMaster("local[*]");
+        //sparkConf.setMaster("local[*]");
         sparkConf.setAppName("wb comparison")
                 .set("spark.default.parallelism", "4")  // 官方推荐，task数量，设置成spark Application 总cpu core数量的2~3倍, cpu = Executor数量 * Executor内核数 = 2 * 2
                 .set("spark.sql.analyzer.failAmbiguousSelfJoin", "false");
@@ -34,7 +34,7 @@ public class WbComparisonBatchServer {
 
     public void run() throws Exception {
 
-        log.debug("=========================Job开始运行===========================");
+        log.warn("=========================Job开始运行===========================");
         initSpark();
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
         jsc.setLogLevel("WARN");
@@ -44,7 +44,7 @@ public class WbComparisonBatchServer {
         /* 做单机种测试时，使用以下代码，并修改druid获取数据的代码部分 */
         //WbComparisonBatchEngineTest wbComparisonBatchEngineTest = new WbComparisonBatchEngineTest(spark);
         //wbComparisonBatchEngineTest.start();
-        log.debug("=========================Job运行结束===========================");
+        log.warn("=========================Job运行结束===========================");
     }
 
     public static void main(String[] args) {

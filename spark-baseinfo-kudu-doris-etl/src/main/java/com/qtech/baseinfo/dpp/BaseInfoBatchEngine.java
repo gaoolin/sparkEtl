@@ -34,7 +34,7 @@ public class BaseInfoBatchEngine extends BatchEngine {
                 .option("url", IMPALA_JDBC_URL)
                 .option("dbtable", "ods_baseinfo.ems_t_device_calcgd1jh1u82gwwionk")
                 .load();
-        log.info("已获取ems_t_device表数据");
+        log.warn("已获取ems_t_device表数据");
         df.withColumn("update_time", lit(DateUtils.dateTimeNow()))
                 .write().format("jdbc")
                 .option("driver",DORIS_JDBC_DRIVER)
@@ -57,14 +57,14 @@ public class BaseInfoBatchEngine extends BatchEngine {
                 // 支持设置 Overwrite 模式来覆盖数据
                 //.mode(SaveMode.Overwrite)
                 .save();*/
-        log.info("已更新ems_t_device数据");
+        log.warn("已更新ems_t_device数据");
 
         Dataset<Row> dfBox = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
                 .option("dbtable", "ods_baseinfo.ems_t_pbox_info")
                 .load();
-        log.info("已获取ems_t_pbox_info表数据");
+        log.warn("已获取ems_t_pbox_info表数据");
         dfBox.withColumn("update_time", lit(DateUtils.dateTimeNow()))
                 .write().format("jdbc")
                 .option("driver", DORIS_JDBC_DRIVER)
@@ -74,16 +74,16 @@ public class BaseInfoBatchEngine extends BatchEngine {
                 .option("password", "")
                 .mode(SaveMode.Append)
                 .save();
-        log.info("已更新ems_t_pbox_info数据");
+        log.warn("已更新ems_t_pbox_info数据");
 
         Dataset<Row> dfCode = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
                 .option("dbtable", "ods_baseinfo.ems_v_code_name")
                 .load();
-        log.info("已获取ems_v_code_name表数据");
+        log.warn("已获取ems_v_code_name表数据");
         dfCode.withColumn("update_time", lit(DateUtils.dateTimeNow()))
-                .drop("hierarchy_show_code")
+                //.drop("hierarchy_show_code")
                 .write().format("jdbc")
                 .option("driver", DORIS_JDBC_DRIVER)
                 .option("url", DORIS_JDBC_URL)
@@ -92,14 +92,14 @@ public class BaseInfoBatchEngine extends BatchEngine {
                 .option("password", "")
                 .mode(SaveMode.Append)
                 .save();
-        log.info("已更新ems_v_code_name数据");
+        log.warn("已更新ems_v_code_name数据");
 
         Dataset<Row> dfLot = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
                 .option("dbtable", "ods_baseinfo.ems_t_collector_program")
                 .load();
-        log.info("已获取ems_t_collector_program表数据");
+        log.warn("已获取ems_t_collector_program表数据");
         dfLot.withColumn("update_time", lit(DateUtils.dateTimeNow()))
                 .write().format("jdbc")
                 .option("driver", DORIS_JDBC_DRIVER)
@@ -109,6 +109,6 @@ public class BaseInfoBatchEngine extends BatchEngine {
                 .option("password", "")
                 .mode(SaveMode.Append)
                 .save();
-        log.info("已更新ems_t_collector_program数据");
+        log.warn("已更新ems_t_collector_program数据");
     }
 }

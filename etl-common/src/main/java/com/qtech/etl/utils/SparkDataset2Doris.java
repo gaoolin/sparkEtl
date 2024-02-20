@@ -24,7 +24,7 @@ import static org.apache.commons.lang3.StringUtils.join;
  */
 
 
-public class SparkDatasetSave2Doris implements Serializable {
+public class SparkDataset2Doris implements Serializable {
 
     private long count = 0;
     private Dataset<Row> df = null;
@@ -33,30 +33,30 @@ public class SparkDatasetSave2Doris implements Serializable {
     private int batchIndex = 0;
     private int batchSize = 1000;
 
-    public SparkDatasetSave2Doris() {
+    public SparkDataset2Doris() {
     }
 
-    public SparkDatasetSave2Doris(Dataset<Row> df, Properties prop, Integer batchSize, Boolean allFieldString) {
+    public SparkDataset2Doris(Dataset<Row> df, Properties prop, Integer batchSize, Boolean allFieldString) {
         this.df = df;
         this.prop = prop;
         this.allFieldString = allFieldString;
         this.batchSize = batchSize;
     }
 
-    public SparkDatasetSave2Doris(Dataset<Row> df, Properties prop, Integer batchSize) {
+    public SparkDataset2Doris(Dataset<Row> df, Properties prop, Integer batchSize) {
         this.df = df;
         this.prop = prop;
         this.allFieldString = false;
         this.batchSize = batchSize;
     }
 
-    public SparkDatasetSave2Doris(Dataset<Row> df, Properties prop, Boolean allFieldString) {
+    public SparkDataset2Doris(Dataset<Row> df, Properties prop, Boolean allFieldString) {
         this.df = df;
         this.prop = prop;
         this.allFieldString = allFieldString;
     }
 
-    public SparkDatasetSave2Doris(Dataset<Row> df, Properties prop) {
+    public SparkDataset2Doris(Dataset<Row> df, Properties prop) {
         this.df = df;
         this.prop = prop;
         this.allFieldString = false;

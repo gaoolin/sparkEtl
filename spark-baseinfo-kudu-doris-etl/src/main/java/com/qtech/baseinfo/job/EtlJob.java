@@ -25,21 +25,23 @@ public class EtlJob {
         //sparkConf.setMaster("local[*]");
         sparkConf.setAppName("base information etl")
                 .set("spark.default.parallelism", "4")
-                .set("spark.yarn.jars", "hdfs:///spark-jars/spark-doris-connector-3.3_2.12-1.3.0.jar")
+                // spark.yarn.jars 传入的 HDFS 下需要包含 spark 相关的原始jar包，如果只包含依赖jar包而没有spark原始依赖则无法提交任务，因为spark.core都找不到了，AM无法创建
+                //.set("spark.yarn.jars", "hdfs:///spark-jars/spark-doris-connector-3.3_2.12-1.3.0.jar")
                 .set("spark.debug.maxToStringFields", "100") // 默认25个字段，否则会提示字段过多
                 .set("spark.sql.analyzer.failAmbiguousSelfJoin", "false");
         spark = SparkSession.builder().config(sparkConf).getOrCreate();
-        log.info("Spark初始化集群配置已完成！");
+        log.warn("Spark初始化集群配置已完成！");
     }
 
     public void run() throws Exception {
-        log.debug("Job开始运行");
+        log.warn("Job开始运行");
         initSpark();
         JavaSparkContext jsc = new JavaSparkContext(spark.sparkContext());
-        jsc.setLogLevel("DEBUG");
+        jsc.setLogLevel("WARN");
 
         new BaseInfoBatchEngine(spark).start();
-        log.debug("Job运行结束");
+        log.warn("Job运行结束");
+
     }
 
     public static void main(String[] args) {

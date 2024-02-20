@@ -12,6 +12,9 @@
         <module>spark-doris-wb-quality-detect-etl</module>
         <module>etl-common</module>
         <module>spark-baseinfo-kudu-doris-etl</module>
+        <module>spark-impala-doris-detail-etl</module>
+        <module>spark-impala-doris-detail-etl</module>
+        <module>spark-bom-etl</module>
     </modules>
 
     <name>sparkEtl</name>
@@ -73,6 +76,11 @@
                 <version>${hadoop.version}</version>
             </dependency>
             <!--spark相关依赖-->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_${scala.binary.version}</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
                 <artifactId>spark-sql_${scala.binary.version}</artifactId>

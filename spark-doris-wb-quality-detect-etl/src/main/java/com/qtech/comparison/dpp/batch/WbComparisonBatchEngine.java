@@ -56,7 +56,7 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         PropertiesManager.loadProp("WbComparison.properties");
         PropertiesManager pm = PropertiesManager.getInstance();
-        log.info("=============================配置文件已加载====================================");
+        log.warn("=============================配置文件已加载====================================");
 
         String power = pm.getString("power");
         String dorisDriver = pm.getString("jdbc.doris.driver");
@@ -160,9 +160,9 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         Dataset<Row> fullLn2doc = fullLn2doc(fullLnSta);
 
-        Dataset<Row> ttlLn = DataProcess.unionDataFrame(new ArrayList<>(Arrays.asList(noProgDF, lackLn2doc, fullLn2doc, overLn2doc)));
+        Dataset<Row> ttlLn = DataProcess.unionDataFrame(new ArrayList<>(Arrays.asList(noProgDF, lackLn2doc, fullLn2doc, overLn2doc))).withColumn("program_name", lit("wb_comparison"));
 
-        Dataset<Row> ctrlInfoDF = ttlLn.withColumn("program_name", lit("wb_comparison")).select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
+        Dataset<Row> ctrlInfoDF = ttlLn.select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
 
         boolean flag = new Persist().doPost(ctrlInfoDF);
         if (!flag) {
@@ -190,7 +190,7 @@ public class WbComparisonBatchEngine extends BatchEngine {
         log.warn(">>>> insert to doris raw data done.");
 
         /* --比对明细入库 */
-        sav2Doris(ctrlInfoDF.filter(String.format("dt > '%s'", druidBeginDate)), dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
+        sav2Doris(ttlLn.filter(String.format("dt > '%s'", druidBeginDate)), dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
         log.warn(">>>> insert to doris comparison detail data done.");
 
         comparisonDF.unpersist();

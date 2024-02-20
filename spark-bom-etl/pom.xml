@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>sparkEtl</artifactId>
         <groupId>com.qtech</groupId>
         <version>1.0</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>spark-doris-wb-quality-detect-etl</artifactId>
+    <groupId>com.qtech.bom</groupId>
+    <artifactId>spark-bom-etl</artifactId>
+
+    <name>sparkh-bom-etl</name>
+    <!-- FIXME change it to the project's website -->
+    <url>http://www.example.com</url>
 
     <properties>
         <!-- 编译时的编码 -->
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-        <junit.version>4.11</junit.version>
-        <fastjson.version>1.2.71</fastjson.version>
-
-        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--编译和构建 文件拷贝时的编码-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencies>
@@ -30,75 +30,52 @@
             <artifactId>etl-common</artifactId>
             <version>2.0</version>
         </dependency>
+        <!--内含spark-core，不用单独添加spark-core依赖-->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${scala.binary.version}</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.qtech.oracle</groupId>
+            <artifactId>ojdbc</artifactId>
+            <version>8</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.calcite.avatica</groupId>
-            <artifactId>avatica</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-        </dependency>
-        <!--CloseableHttpClient-->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <!--<scope>provided</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-        </dependency>
+
+        <!--Caused by: com.fasterxml.jackson.databind.JsonMappingException: Scala module 2.13.4 requires Jackson Databind version >= 2.13.0 and < 2.14.0 - Found jackson-databind version 2.12.7-1-->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -163,15 +140,7 @@
                     <artifactSet>
                         <includes>
                             <!--部分需要打包到jar包里面的依赖-->
-                            <include>org.apache.calcite.avatica:avatica</include>
-                            <include>mysql:mysql-connector-java</include>
-                            <include>com.alibaba:druid</include>
-                            <include>org.mybatis:mybatis</include>
-                            <include>org.postgresql:postgresql</include>
-                            <include>org.projectlombok:lombok</include>
                             <include>com.qtech:etl-common</include>
-                            <include>org.apache.httpcomponents:httpclient</include>
-                            <include>com.alibaba:fastjson</include>
                         </includes>
                     </artifactSet>
                 </configuration>

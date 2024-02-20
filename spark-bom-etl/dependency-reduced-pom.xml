@@ -6,7 +6,10 @@
     <version>1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>spark-doris-wb-quality-detect-etl</artifactId>
+  <groupId>com.qtech.bom</groupId>
+  <artifactId>spark-bom-etl</artifactId>
+  <name>sparkh-bom-etl</name>
+  <url>http://www.example.com</url>
   <build>
     <plugins>
       <plugin>
@@ -62,15 +65,7 @@
         <configuration>
           <artifactSet>
             <includes>
-              <include>org.apache.calcite.avatica:avatica</include>
-              <include>mysql:mysql-connector-java</include>
-              <include>com.alibaba:druid</include>
-              <include>org.mybatis:mybatis</include>
-              <include>org.postgresql:postgresql</include>
-              <include>org.projectlombok:lombok</include>
               <include>com.qtech:etl-common</include>
-              <include>org.apache.httpcomponents:httpclient</include>
-              <include>com.alibaba:fastjson</include>
             </includes>
           </artifactSet>
         </configuration>
@@ -85,59 +80,52 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.25</version>
+      <groupId>com.qtech.oracle</groupId>
+      <artifactId>ojdbc</artifactId>
+      <version>8</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <version>2.19.0</version>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>8.0.29</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <version>2.19.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
-      <version>3.8.0</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>hamcrest-core</artifactId>
-          <groupId>org.hamcrest</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
       <version>3.3.6</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>com.fasterxml.jackson.module</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
       <version>3.3.6</version>
       <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>com.fasterxml.jackson.module</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>com.fasterxml.jackson.core</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <properties>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <fastjson.version>1.2.71</fastjson.version>
-    <junit.version>4.11</junit.version>
   </properties>
 </project>

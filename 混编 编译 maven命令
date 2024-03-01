@@ -6,3 +6,6 @@ shade 插件打包 直接在maven工具栏操作会导致打包失败
 需要在终端命令行中执行命令：
 mvn clean scala:compile compile package -DskipTests
 mvn package
+
+$ cd  {DataX_source_code_home}
+$ mvn -U clean package assembly:assembly -Dmaven.test.skip=true

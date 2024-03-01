@@ -99,7 +99,11 @@ public class WbComparisonBatchEngine extends BatchEngine {
         //druidBeginDate = getJobRunDt("wb_comparison_raw");  // 2023-09-21 14:40:34
 
         if (Strings.isNullOrEmpty(preRunDt) || Strings.isNullOrEmpty(druidBeginDate)) {
-            throw new SparkDppException("作业的数据时间不能为空，请检查！");
+             preRunDt = getJobRunDt("wb_comparison_result");  // 2023-09-21 14:25:34
+            druidBeginDate = getJobRunDt("wb_comparison_raw");  // 2023-09-21 14:40:34
+            if (Strings.isNullOrEmpty(preRunDt) || Strings.isNullOrEmpty(druidBeginDate)) {
+                throw new SparkDppException("作业的数据时间不能为空，请检查！");
+            }
         }
 
         String endDate = DatetimeBuilder("yyyy-MM-dd HH:mm:ss");  // "2021-12-28 08:20:30";

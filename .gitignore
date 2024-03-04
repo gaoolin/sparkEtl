@@ -2,3 +2,4 @@
 /etl-common/target/
 /spark-baseinfo-kudu-doris-etl/target/
 /spark-doris-wb-quality-detect-etl/target/
+/metastore_db

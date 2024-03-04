@@ -9,6 +9,8 @@
     <file url="file://$PROJECT_DIR$/spark-bom-etl/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/spark-doris-wb-quality-detect-etl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/spark-doris-wb-quality-detect-etl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spark-fixture-statistics-etl/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/spark-fixture-statistics-etl/src/main/scala" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/spark-impala-doris-detail-etl/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/spark-impala-doris-detail-etl/src/main/resources" charset="UTF-8" />
   </component>

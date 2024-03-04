@@ -12,6 +12,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/spark-baseInfo-kudu-doris-etl/pom.xml" />
+        <option value="$PROJECT_DIR$/spark-fixture-statistics-mysql-etl/pom.xml" />
       </set>
     </option>
   </component>

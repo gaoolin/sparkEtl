@@ -17,6 +17,11 @@
       <option name="url" value="https://repository.cloudera.com/artifactory/cloudera-repos/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="aliyun" />
+      <option name="name" value="阿里maven仓库" />
+      <option name="url" value="https://maven.aliyun.com/repository/public" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="zkd" />
       <option name="name" value="zkd" />
       <option name="url" value="http://mirrors.ustc.edu.cn/maven/maven2/" />
@@ -25,6 +30,11 @@
       <option name="id" value="central" />
       <option name="name" value="Maven Central repository" />
       <option name="url" value="https://repo1.maven.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="scala-tools.org" />
+      <option name="name" value="Scala-Tools Maven2 Repository" />
+      <option name="url" value="http://scala-tools.org/repo-releases" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="jboss.community" />

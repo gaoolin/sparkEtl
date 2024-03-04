@@ -7,13 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="etl-common" />
         <module name="spark-baseInfo-kudu-doris-etl" />
+        <module name="etl-common" />
         <module name="spark-bom-etl" />
         <module name="spark-doris-wb-quality-detect-etl" />
+        <module name="spark-fixture-statistics-etl" />
         <module name="spark-impala-doris-detail-etl" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="8" />
+    <bytecodeTargetLevel target="8">
+      <module name="spark-fixture-statistics-mysql-etl" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

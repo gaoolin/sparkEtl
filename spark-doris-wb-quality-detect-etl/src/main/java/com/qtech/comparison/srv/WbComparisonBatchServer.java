@@ -25,7 +25,7 @@ public class WbComparisonBatchServer {
     private void initSpark() throws SparkDppException {
         // 初始话Spark相关配置
         SparkConf sparkConf = SparkInitConf.initSparkConfigs();
-        sparkConf.setMaster("local[*]");
+        //sparkConf.setMaster("local[*]");
         sparkConf.setAppName("wb comparison")
                 .set("spark.default.parallelism", "4")  // 官方推荐，task数量，设置成spark Application 总cpu core数量的2~3倍, cpu = Executor数量 * Executor内核数 = 2 * 2
                 .set("spark.sql.analyzer.failAmbiguousSelfJoin", "false");
@@ -51,10 +51,10 @@ public class WbComparisonBatchServer {
         try {
             new WbComparisonBatchServer().run();
         } catch (Exception e) {
-            HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'0'}"));
-            HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'0'}"));
             e.printStackTrace();
-            System.exit(0);
+        } finally {
+            HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'0'}"));
+            spark.stop();
         }
     }
 }

@@ -9,7 +9,7 @@
     </resultMap>
 
     <select id="getJobRunDt" resultMap="jobRunDtResultType">
-        select pre_run_time from qtech_wb.public.job_run_status where job_name = #{jobName}
+        select * from qtech_wb.public.job_run_status where job_name = #{jobName}
     </select>
 
     <select id="getJobRunStatus" resultMap="jobRunDtResultType">

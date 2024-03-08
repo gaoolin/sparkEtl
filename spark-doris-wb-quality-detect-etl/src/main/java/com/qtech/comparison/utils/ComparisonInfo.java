@@ -19,6 +19,7 @@ public enum ComparisonInfo {
     DATASOURCE_DRUID_DORIS("druid_doris", 0.0f, 0),
     DATASOURCE_DRUID_POSTGRES("druid_postgres", 0.0f, 0),
     STD_MOD_SQL("select a.mc_id std_mc_id, line_no std_line_no, lead_x std_lead_x, lead_y std_lead_y, pad_x std_pad_x, pad_y std_pad_y, lead_threshold, pad_threshold, lead_diff std_lead_diff, pad_diff std_pad_diff, wire_len std_wire_len from public.std_mod_detail a left join public.std_mod_info b on a.mc_id = b.mc_id where b.status = 1", 0.0f, 0),
+    JOB_RUN_DT("select pre_run_time from public.job_run_status where job_name = '%s'", 0.0f, 0),
     SECONDS_UNIT("", 1000.0F, 0),
     RUNTIME_LAG_MINUTES("", 0.0f, 15),
     SHOW_COUNT("", 0.0f, 0),

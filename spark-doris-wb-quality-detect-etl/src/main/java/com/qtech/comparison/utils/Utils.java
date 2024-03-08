@@ -1,5 +1,6 @@
 package com.qtech.comparison.utils;
 
+import com.google.common.base.Strings;
 import com.qtech.comparison.ibatis.mapper.JobRunInfoMapper;
 import com.qtech.comparison.ibatis.mapper.StdModelsMapper;
 import com.qtech.comparison.ibatis.pojo.JobRunInfo;
@@ -59,8 +60,7 @@ public class Utils {
 
     public static String getJobRunDt(String jobName) {
         JobRunInfo jobRunDt = jobRunInfoMapper.getJobRunDt(jobName);
-        String preRunTime = jobRunDt.getPreRunTime();
-        return preRunTime;
+        return jobRunDt.getPreRunTime() ;
     }
 
     public static int updateJobRunDt(String jobName, String preRunTime) {

@@ -1,14 +1,15 @@
 package com.qtech.comparison.dpp.batch;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Strings;
 import com.qtech.comparison.algorithm.Algorithm;
 import com.qtech.comparison.dpp.data.DataParse;
 import com.qtech.comparison.dpp.data.DataProcess;
+import com.qtech.comparison.srv.JobRunService;
 import com.qtech.comparison.utils.ComparisonInfo;
-import com.qtech.etl.utils.HttpConnectUtils;
 import com.qtech.comparison.utils.Persist;
 import com.qtech.etl.exception.biz.comparison.SparkDppException;
+import com.qtech.etl.utils.DateUtils;
+import com.qtech.etl.utils.HttpConnectUtils;
 import com.qtech.etl.utils.PropertiesManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
@@ -19,6 +20,7 @@ import org.apache.spark.storage.StorageLevel;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 
 import static com.qtech.comparison.algorithm.Algorithm.*;
@@ -46,12 +48,16 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         long timeStart = System.currentTimeMillis();
 
-        String stat = HttpConnectUtils.get("http://10.170.6.40:32767/job/api/getJobStat/wb_comparison_result");
+        Boolean continueOrNot = JobRunService.checkJobRunCondition();
 
-        if ("1".equals(stat)) {
-            log.warn("已有打线图作业正在运行，本次作业将退出！");
-            return;  // 退出此方法
+        if (!continueOrNot) {
+            return;
         }
+
+        Map<String, String> finalJobRunDt = JobRunService.getFinalJobRunDt();
+        String resRunDt = finalJobRunDt.get("wb_comparison_result");
+        String rawRunDt = finalJobRunDt.get("wb_comparison_raw");
+
         HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'1'}"));
 
         PropertiesManager.loadProp("WbComparison.properties");
@@ -89,52 +95,35 @@ public class WbComparisonBatchEngine extends BatchEngine {
         log.warn(">>>> fetch stdModels spend {} seconds.",
                 Math.round((timeStdModels - timeSparkContext) / ComparisonInfo.SECONDS_UNIT.getFlt()));
 
-        String druidBeginDate;
-        String preRunDt;
-
-        preRunDt = HttpConnectUtils.get("http://10.170.6.40:32767/job/api/getJobRunDt/wb_comparison_result");
-        druidBeginDate = HttpConnectUtils.get("http://10.170.6.40:32767/job/api/getJobRunDt/wb_comparison_raw");
-
-        // preRunDt = getJobRunDt("wb_comparison_result");  // 2023-09-21 14:25:34
-        //druidBeginDate = getJobRunDt("wb_comparison_raw");  // 2023-09-21 14:40:34
-
-        if (Strings.isNullOrEmpty(preRunDt) || Strings.isNullOrEmpty(druidBeginDate)) {
-             preRunDt = getJobRunDt("wb_comparison_result");  // 2023-09-21 14:25:34
-            druidBeginDate = getJobRunDt("wb_comparison_raw");  // 2023-09-21 14:40:34
-            if (Strings.isNullOrEmpty(preRunDt) || Strings.isNullOrEmpty(druidBeginDate)) {
-                throw new SparkDppException("作业的数据时间不能为空，请检查！");
-            }
-        }
-
-        String endDate = DatetimeBuilder("yyyy-MM-dd HH:mm:ss");  // "2021-12-28 08:20:30";
-        String comparisonBeginDate = judgeRunDt(preRunDt, endDate);  // 2023-09-21 14:25:34
+        String endDate = DateUtils.dateTimeNow("yyyy-MM-dd HH:mm:ss");
+        String comparisonBeginDate = judgeRunDt(resRunDt, endDate);  // 2023-09-21 14:25:34
 
         log.warn(">>>> comparison dt range: {} - {}.", comparisonBeginDate, endDate);
 
-        Dataset<Row> comparisonDF = DataParse.druidParse(spark, comparisonBeginDate).persist(StorageLevel.MEMORY_AND_DISK()); // 避免惰性运行，引起的时间计算不一致问题
+        Dataset<Row> comparisonDf = DataParse.druidParse(spark, comparisonBeginDate).persist(StorageLevel.MEMORY_AND_DISK()); // 避免惰性运行，引起的时间计算不一致问题
 
-        String maxDtOfRawDF = getNextJobRunDt(comparisonDF);
+        String maxDtOfRawDf = getNextJobRunDt(comparisonDf);
 
-        String nextRunDt = offsetTime(maxDtOfRawDF, ComparisonInfo.RUNTIME_LAG_MINUTES.getNum());
+        String nextRunDt = offsetTime(maxDtOfRawDf, ComparisonInfo.RUNTIME_LAG_MINUTES.getNum());
 
         log.warn(">>>> next job run dt: {}.", nextRunDt);
 
-        // rawDF = rawDF.sample(0.1);
+        // rawDf = rawDf.sample(0.1);
 
-        // Dataset<Row> comparisonDF = rawDF.filter(String.format("dt > '%s'", comparisonBeginDate));
+        // Dataset<Row> comparisonDf = rawDf.filter(String.format("dt > '%s'", comparisonBeginDate));
 
-        Dataset<Row> processedDF = DataProcess.doProcess(comparisonDF, stdModWireCnt)
+        Dataset<Row> processedDf = DataProcess.doProcess(comparisonDf, stdModWireCnt)
                 .where("mcs_by_pieces_index = 1").persist(StorageLevel.MEMORY_AND_DISK());
 
-        Dataset<Row> noProgDF = Algorithm.noProg(processedDF.where("std_mod_line_cnt is null"));
+        Dataset<Row> noProgDf = Algorithm.noProg(processedDf.where("std_mod_line_cnt is null"));
 
-        Dataset<Row> lackLnDa = processedDF.filter("check_port < std_mod_line_cnt or check_port = std_mod_line_cnt + 1");
+        Dataset<Row> lackLnDa = processedDf.filter("check_port < std_mod_line_cnt or check_port = std_mod_line_cnt + 1");
 
-        Dataset<Row> fullLnDa = processedDF.filter("check_port = std_mod_line_cnt and check_port = cnt");
+        Dataset<Row> fullLnDa = processedDf.filter("check_port = std_mod_line_cnt and check_port = cnt");
 
-        Dataset<Row> linkLnDa = processedDF.filter("check_port = std_mod_line_cnt + 2 and check_port = cnt");
+        Dataset<Row> linkLnDa = processedDf.filter("check_port = std_mod_line_cnt + 2 and check_port = cnt");
 
-        Dataset<Row> overLnDa = processedDF.filter("check_port = std_mod_line_cnt + 1 or check_port > std_mod_line_cnt + 2");
+        Dataset<Row> overLnDa = processedDf.filter("check_port = std_mod_line_cnt + 1 or check_port > std_mod_line_cnt + 2");
 
         Dataset<Row> lackLn2doc = lackLn2doc(lackLnDa);
 
@@ -150,13 +139,13 @@ public class WbComparisonBatchEngine extends BatchEngine {
                 .sort(col("sim_id"), col("mc_id"), col("first_draw_time"), col("pieces_index"), col("line_no"));
 
         // 自排序算法
-        /* Dataset<Row> normalizeUnitDF = coordinateNormalization(fullLnTtl); */
+        /* Dataset<Row> normalizeUnitDf = coordinateNormalization(fullLnTtl); */
 
-        // normalizeUnitDF.show(showCount);
+        // normalizeUnitDf.show(showCount);
 
-        /* Dataset<Row> normalizeDF = generateLineNmb(normalizeUnitDF); */
+        /* Dataset<Row> normalizeDf = generateLineNmb(normalizeUnitDf); */
 
-        // normalizeDF.show(showCount);
+        // normalizeDf.show(showCount);
 
         Dataset<Row> fullLnDiff = diff(fullLnTtl);
 
@@ -164,11 +153,11 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         Dataset<Row> fullLn2doc = fullLn2doc(fullLnSta);
 
-        Dataset<Row> ttlLn = DataProcess.unionDataFrame(new ArrayList<>(Arrays.asList(noProgDF, lackLn2doc, fullLn2doc, overLn2doc))).withColumn("program_name", lit("wb_comparison"));
+        Dataset<Row> ttlLn = DataProcess.unionDataFrame(new ArrayList<>(Arrays.asList(noProgDf, lackLn2doc, fullLn2doc, overLn2doc))).withColumn("program_name", lit("wb_comparison"));
 
-        Dataset<Row> ctrlInfoDF = ttlLn.select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
+        Dataset<Row> ctrlInfoDf = ttlLn.select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
 
-        boolean flag = new Persist().doPost(ctrlInfoDF);
+        boolean flag = new Persist().doPost(ctrlInfoDf);
         if (!flag) {
             log.error("写入redis部分或者全部出错！");
         }
@@ -178,31 +167,30 @@ public class WbComparisonBatchEngine extends BatchEngine {
         postgresProp.put("password", postgresPwd);
 
         /* --比对结果入postgres */
-        upsertPostgres(ctrlInfoDF, postgresUrl, postgresProp);
+        upsertPostgres(ctrlInfoDf, postgresUrl, postgresProp);
         log.warn(">>>> upsert postgresql result done.");
 
         // update job run dt
         HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_result':'" + nextRunDt + "'}"));
-        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_raw':'" + maxDtOfRawDF + "'}"));
-        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'0'}"));
+        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_raw':'" + maxDtOfRawDf + "'}"));
         log.warn(">>>> update job run dt done.");
 
-        Dataset<Row> appendDF = comparisonDF.select(col("sim_id"), col("mc_id"), col("dt"), col("line_no"), col("lead_x"), col("lead_y"), col("pad_x"), col("pad_y"), col("check_port"),
-                col("pieces_index")).where(String.format("`dt` > '%s'", druidBeginDate)).withColumn("load_time", lit(DatetimeBuilder("yyyy-MM-dd HH:mm:ss")));
+        Dataset<Row> appendDf = comparisonDf.select(col("sim_id"), col("mc_id"), col("dt"), col("line_no"), col("lead_x"), col("lead_y"), col("pad_x"), col("pad_y"), col("check_port"),
+                col("pieces_index")).where(String.format("`dt` > '%s'", rawRunDt)).withColumn("load_time", lit(DatetimeBuilder("yyyy-MM-dd HH:mm:ss")));
         /* --坐标明细入库 */
-        sav2Doris(appendDF, dorisDriver, dorisUrl, dorisUser, dorisPwd, coordinationDetailTb);
+        sav2Doris(appendDf, dorisDriver, dorisUrl, dorisUser, dorisPwd, coordinationDetailTb);
         log.warn(">>>> insert to doris raw data done.");
 
         /* --比对明细入库 */
-        sav2Doris(ttlLn.filter(String.format("dt > '%s'", druidBeginDate)), dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
+        sav2Doris(ttlLn.filter(String.format("dt > '%s'", rawRunDt)), dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
         log.warn(">>>> insert to doris comparison detail data done.");
 
-        comparisonDF.unpersist();
-        processedDF.unpersist();
+        comparisonDf.unpersist();
+        processedDf.unpersist();
 
         /* --更新比对时间 */
         updateJobRunDt("wb_comparison_result", nextRunDt);
-        updateJobRunDt("wb_comparison_raw", maxDtOfRawDF);
+        updateJobRunDt("wb_comparison_raw", maxDtOfRawDf);
         log.warn("update job run datetime on database done.");
 
         long timeEnd = System.currentTimeMillis();

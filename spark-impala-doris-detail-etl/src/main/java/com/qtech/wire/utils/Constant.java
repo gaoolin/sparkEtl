@@ -5,7 +5,7 @@ package com.qtech.wire.utils;
  * @project : qtech-data-etl
  * @email : gaoolin@gmail.com
  * @date : 2023/04/26 11:02:23
- * @description : TODO
+ * @description :
  */
 
 

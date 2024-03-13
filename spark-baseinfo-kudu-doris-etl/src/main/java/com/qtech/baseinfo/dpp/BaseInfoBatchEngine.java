@@ -32,9 +32,12 @@ public class BaseInfoBatchEngine extends BatchEngine {
         Dataset<Row> df = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
-                .option("dbtable", "ods_baseinfo.ems_t_device_calcgd1jh1u82gwwionk")
+                .option("dbtable", "QT_MODEL_EMS.T_DEVICE_CALCGD1JH1U82GWWIONK")
+                .option("user", IMPALA_USER)
+                .option("password", IMPALA_PWD)
                 .load();
         log.warn("已获取ems_t_device表数据");
+        //df.show(1000, false);
         df.withColumn("update_time", lit(DateUtils.dateTimeNow()))
                 .write().format("jdbc")
                 .option("driver",DORIS_JDBC_DRIVER)
@@ -62,7 +65,9 @@ public class BaseInfoBatchEngine extends BatchEngine {
         Dataset<Row> dfBox = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
-                .option("dbtable", "ods_baseinfo.ems_t_pbox_info")
+                .option("dbtable", "QT_MODEL_EMS.T_PBOX_INFO")
+                .option("user", IMPALA_USER)
+                .option("password", IMPALA_PWD)
                 .load();
         log.warn("已获取ems_t_pbox_info表数据");
         dfBox.withColumn("update_time", lit(DateUtils.dateTimeNow()))
@@ -79,7 +84,9 @@ public class BaseInfoBatchEngine extends BatchEngine {
         Dataset<Row> dfCode = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
-                .option("dbtable", "ods_baseinfo.ems_v_code_name")
+                .option("dbtable", "QT_MODEL_EMS.V_CODE_NAME")
+                .option("user", IMPALA_USER)
+                .option("password", IMPALA_PWD)
                 .load();
         log.warn("已获取ems_v_code_name表数据");
         dfCode.withColumn("update_time", lit(DateUtils.dateTimeNow()))
@@ -97,7 +104,9 @@ public class BaseInfoBatchEngine extends BatchEngine {
         Dataset<Row> dfLot = spark.read().format("jdbc")
                 .option("driver", IMPALA_JDBC_DRIVER)
                 .option("url", IMPALA_JDBC_URL)
-                .option("dbtable", "ods_baseinfo.ems_t_collector_program")
+                .option("dbtable", "QT_MODEL_EMS.T_COLLECTOR_PROGRAM")
+                .option("user", IMPALA_USER)
+                .option("password", IMPALA_PWD)
                 .load();
         log.warn("已获取ems_t_collector_program表数据");
         dfLot.withColumn("update_time", lit(DateUtils.dateTimeNow()))

@@ -1,7 +1,6 @@
 package com.qtech.comparison.dpp.batch;
 
 import com.alibaba.fastjson.JSONObject;
-import com.qtech.comparison.algorithm.Algorithm;
 import com.qtech.comparison.dpp.data.DataParse;
 import com.qtech.comparison.dpp.data.DataProcess;
 import com.qtech.comparison.srv.JobRunService;
@@ -13,15 +12,13 @@ import com.qtech.etl.utils.HttpConnectUtils;
 import com.qtech.etl.utils.PropertiesManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.storage.StorageLevel;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.qtech.comparison.algorithm.Algorithm.*;
 import static com.qtech.comparison.utils.Utils.*;
@@ -96,17 +93,13 @@ public class WbComparisonBatchEngine extends BatchEngine {
                 Math.round((timeStdModels - timeSparkContext) / ComparisonInfo.SECONDS_UNIT.getFlt()));
 
         String endDate = DateUtils.dateTimeNow("yyyy-MM-dd HH:mm:ss");
-        String comparisonBeginDate = judgeRunDt(resRunDt, endDate);  // 2023-09-21 14:25:34
-
+        String currentRunDt = offsetTime(rawRunDt, ComparisonInfo.RUNTIME_LAG_MINUTES.getNum());
+        String comparisonBeginDate = judgeRunDt(currentRunDt, endDate);  // 判定是否起始时间超长
         log.warn(">>>> comparison dt range: {} - {}.", comparisonBeginDate, endDate);
 
         Dataset<Row> comparisonDf = DataParse.druidParse(spark, comparisonBeginDate).persist(StorageLevel.MEMORY_AND_DISK()); // 避免惰性运行，引起的时间计算不一致问题
 
-        String maxDtOfRawDf = getNextJobRunDt(comparisonDf);
-
-        String nextRunDt = offsetTime(maxDtOfRawDf, ComparisonInfo.RUNTIME_LAG_MINUTES.getNum());
-
-        log.warn(">>>> next job run dt: {}.", nextRunDt);
+        String maxDtOfRawDf = getMaxDtAndOffset(comparisonDf);
 
         // rawDf = rawDf.sample(0.1);
 
@@ -115,7 +108,7 @@ public class WbComparisonBatchEngine extends BatchEngine {
         Dataset<Row> processedDf = DataProcess.doProcess(comparisonDf, stdModWireCnt)
                 .where("mcs_by_pieces_index = 1").persist(StorageLevel.MEMORY_AND_DISK());
 
-        Dataset<Row> noProgDf = Algorithm.noProg(processedDf.where("std_mod_line_cnt is null"));
+        Dataset<Row> noProgDf = noProg(processedDf.where("std_mod_line_cnt is null"));
 
         Dataset<Row> lackLnDa = processedDf.filter("check_port < std_mod_line_cnt or check_port = std_mod_line_cnt + 1");
 
@@ -129,7 +122,7 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         Dataset<Row> overLn2doc = overLn2doc(overLnDa);
 
-        Dataset<Row> linkLn2FullLn = Algorithm.linkLnEstimate(linkLnDa);
+        Dataset<Row> linkLn2FullLn = linkLnEstimate(linkLnDa);
 
         Dataset<Row> fullLnTtl = fullLnDa.select(col("sim_id"), col("mc_id"), col("dt"),
                 col("first_draw_time"), col("line_no"), col("lead_x"), col("lead_y"),
@@ -155,7 +148,22 @@ public class WbComparisonBatchEngine extends BatchEngine {
 
         Dataset<Row> ttlLn = DataProcess.unionDataFrame(new ArrayList<>(Arrays.asList(noProgDf, lackLn2doc, fullLn2doc, overLn2doc))).withColumn("program_name", lit("wb_comparison"));
 
-        Dataset<Row> ctrlInfoDf = ttlLn.select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
+        /* 过滤机型 */
+        ttlLn.createOrReplaceTempView("ttlLn");
+        getNeedFilterMcId(spark, postgresDriver, postgresUrl, postgresUser, postgresPwd).createOrReplaceTempView("needFilterMcId");
+
+        Dataset<Row> needModifyDf = spark.sql("select * from ttlLn where mc_id in (select mc_id from needFilterMcId)");
+        Dataset<Row> leaveDf = spark.sql("select * from ttlLn where mc_id not in (select mc_id from needFilterMcId)");
+
+        needModifyDf.withColumn("code", lit(0));
+        needModifyDf.withColumn("description", lit("Invalidation"));
+
+        Dataset<Row> ctrlInfoDfAll = leaveDf.union(needModifyDf);
+//        ctrlInfoDfAll.show(false);
+
+        Dataset<Row> ctrlInfoDf = ctrlInfoDfAll.select(col("sim_id"), col("program_name"), col("dt"), col("code"), col("description"));
+
+        String maxDtOfResDf = getMaxDtAndOffset(ctrlInfoDf);
 
         boolean flag = new Persist().doPost(ctrlInfoDf);
         if (!flag) {
@@ -171,7 +179,7 @@ public class WbComparisonBatchEngine extends BatchEngine {
         log.warn(">>>> upsert postgresql result done.");
 
         // update job run dt
-        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_result':'" + nextRunDt + "'}"));
+        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_result':'" + maxDtOfResDf + "'}"));
         HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobRunDt", JSONObject.parseObject("{'wb_comparison_raw':'" + maxDtOfRawDf + "'}"));
         log.warn(">>>> update job run dt done.");
 
@@ -182,14 +190,22 @@ public class WbComparisonBatchEngine extends BatchEngine {
         log.warn(">>>> insert to doris raw data done.");
 
         /* --比对明细入库 */
-        sav2Doris(ttlLn.filter(String.format("dt > '%s'", rawRunDt)), dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
+        Dataset<Row> comparisonResultDetail = ttlLn.filter(String.format("dt > '%s'", resRunDt));
+        sav2Doris(comparisonResultDetail, dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
+        Dataset<String> json = comparisonResultDetail.toJSON();
+        json.foreach(row -> {
+            System.out.println(row);
+            JSONObject jsonObject = JSONObject.parseObject(row);
+            String i = HttpConnectUtils.post("http://10.170.6.40:30864/rabbitmq/msg/wbComparison", jsonObject);
+        });
         log.warn(">>>> insert to doris comparison detail data done.");
+
 
         comparisonDf.unpersist();
         processedDf.unpersist();
 
         /* --更新比对时间 */
-        updateJobRunDt("wb_comparison_result", nextRunDt);
+        updateJobRunDt("wb_comparison_result", maxDtOfResDf);
         updateJobRunDt("wb_comparison_raw", maxDtOfRawDf);
         log.warn("update job run datetime on database done.");
 

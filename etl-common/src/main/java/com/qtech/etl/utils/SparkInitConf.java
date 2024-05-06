@@ -24,8 +24,8 @@ public class SparkInitConf {
         hadoopConf.put("fs.defaultFS", "hdfs://cluster");
         hadoopConf.put("dfs.nameservices", "cluster");
         hadoopConf.put("dfs.ha.namenodes.cluster", "nn1,nn2");
-        hadoopConf.put("dfs.namenode.rpc-address.cluster.nn1", "k8s-nod05:8020");
-        hadoopConf.put("dfs.namenode.rpc-address.cluster.nn2", "k8s-nod06:8020");
+        hadoopConf.put("dfs.namenode.rpc-address.cluster.nn1", "im01:8020");
+        hadoopConf.put("dfs.namenode.rpc-address.cluster.nn2", "im02:8020");
         hadoopConf.put("dfs.client.failover.proxy.provider.cluster", "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
         return hadoopConf;
     }

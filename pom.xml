@@ -11,11 +11,11 @@
     <modules>
         <module>spark-doris-wb-quality-detect-etl</module>
         <module>etl-common</module>
-        <module>spark-baseinfo-kudu-doris-etl</module>
-        <module>spark-impala-doris-detail-etl</module>
-        <module>spark-impala-doris-detail-etl</module>
+        <module>spark-base-info-etl</module>
+        <module>spark-wb-xtreme-areo-wire-usage-etl</module>
         <module>spark-bom-etl</module>
         <module>spark-fixture-statistics-etl</module>
+        <module>spark-wb-olp-check-etl</module>
     </modules>
 
     <name>sparkEtl</name>

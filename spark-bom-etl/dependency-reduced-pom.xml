@@ -8,9 +8,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.qtech.bom</groupId>
   <artifactId>spark-bom-etl</artifactId>
-  <name>sparkh-bom-etl</name>
+  <name>spark-bom-etl</name>
   <url>http://www.example.com</url>
   <build>
+    <finalName>spark-bom-etl</finalName>
     <plugins>
       <plugin>
         <groupId>org.scala-tools</groupId>

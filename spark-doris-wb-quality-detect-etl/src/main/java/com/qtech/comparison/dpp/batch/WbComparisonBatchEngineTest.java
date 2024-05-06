@@ -32,6 +32,7 @@ import static org.apache.spark.sql.functions.*;
  * desc   :  业务逻辑类
  */
 
+/*
 @Slf4j
 public class WbComparisonBatchEngineTest extends BatchEngine {
 
@@ -46,13 +47,15 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
 
         long timeStart = System.currentTimeMillis();
 
+*/
 /*        String stat = HttpConnectUtils.get("http://10.170.6.40:32767/job/api/getJobStat/wb_comparison_result");
 
         if ("1".equals(stat)) {
             log.warn("已有打线图作业正在运行，本次作业将退出！");
             return;  // 退出此方法
         }
-        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'1'}"));*/
+        HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'1'}"));*//*
+
 
         PropertiesManager.loadProp("WbComparison.properties");
         PropertiesManager pm = PropertiesManager.getInstance();
@@ -111,7 +114,7 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
 
         comparisonDF.show(100);
 
-        String maxDtOfRawDF = getNextJobRunDt(comparisonDF);
+        String maxDtOfRawDF = getMaxDtAndOffset(comparisonDF);
 
         String nextRunDt = offsetTime(maxDtOfRawDF, ComparisonInfo.RUNTIME_LAG_MINUTES.getNum());
 
@@ -149,11 +152,15 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
         fullLnDa.show(100);
 
         // 自排序算法
-        /* Dataset<Row> normalizeUnitDF = coordinateNormalization(fullLnTtl); */
+        */
+/* Dataset<Row> normalizeUnitDF = coordinateNormalization(fullLnTtl); *//*
+
 
         // normalizeUnitDF.show(showCount);
 
-        /* Dataset<Row> normalizeDF = generateLineNmb(normalizeUnitDF); */
+        */
+/* Dataset<Row> normalizeDF = generateLineNmb(normalizeUnitDF); *//*
+
 
         // normalizeDF.show(showCount);
 
@@ -182,7 +189,9 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
         postgresProp.put("user", postgresUser);
         postgresProp.put("password", postgresPwd);
 
-        /* 比对结果入postgres */
+        */
+/* 比对结果入postgres *//*
+
         new Persist().doPostgresUpsert(ctrlInfoDF, postgresUrl, postgresUser, postgresPwd, comparisonInfoTb);
         // upsertPostgres(ctrlInfoDF, postgresUrl, postgresProp);
         log.warn(">>>> upsert postgresql result done.");
@@ -195,18 +204,24 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
 
         Dataset<Row> appendDF = comparisonDF.select(col("sim_id"), col("mc_id"), col("dt"), col("line_no"), col("lead_x"), col("lead_y"), col("pad_x"), col("pad_y"), col("check_port"),
                 col("pieces_index")).where(String.format("`dt` > '%s'", druidBeginDate)).withColumn("load_time", lit(DatetimeBuilder("yyyy-MM-dd HH:mm:ss")));
-        /* --坐标明细入库 */
+        */
+/* --坐标明细入库 *//*
+
 //        sav2Doris(appendDF, dorisDriver, dorisUrl, dorisUser, dorisPwd, coordinationDetailTb);
         log.warn(">>>> insert to doris raw data done.");
 
-        /* --比对明细入库 */
+        */
+/* --比对明细入库 *//*
+
 //        sav2Doris(ctrlInfoDF, dorisDriver, dorisUrl, dorisUser, dorisPwd, comparisonDetailTb);
         log.warn(">>>> insert to doris comparison detail data done.");
 
         comparisonDF.unpersist();
         processedDF.unpersist();
 
-        /* --更新比对时间 */
+        */
+/* --更新比对时间 *//*
+
 //        updateJobRunDt("wb_comparison_result", nextRunDt);
 //        updateJobRunDt("wb_comparison_raw", maxDtOfRawDF);
         log.warn("update job run datetime on database done.");
@@ -215,3 +230,4 @@ public class WbComparisonBatchEngineTest extends BatchEngine {
         log.warn(">>>> job run spend {} s.", Math.round((timeEnd - timeStart) / ComparisonInfo.SECONDS_UNIT.getFlt()));
     }
 }
+*/

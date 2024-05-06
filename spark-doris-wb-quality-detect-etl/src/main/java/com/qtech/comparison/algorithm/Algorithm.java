@@ -255,7 +255,6 @@ public class Algorithm {
                         col("pieces_index"), col("sub_mc_id"), col("wire_len"));
     }
 
-
     public static Dataset<Row> fullLnMkStaMock(Dataset<Row> df, Dataset<Row> stdModelDF) {
         Dataset<Row> stdModDF = stdModelDF
                 .select(col("std_mc_id"), col("std_line_no"), col("std_lead_x"),

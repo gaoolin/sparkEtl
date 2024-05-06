@@ -12,14 +12,14 @@
       <option name="url" value="https://packages.aliyun.com/maven/repository/2291757-release-IXikA3/" />
     </remote-repository>
     <remote-repository>
-      <option name="id" value="cloudera" />
-      <option name="name" value="cloudera" />
-      <option name="url" value="https://repository.cloudera.com/artifactory/cloudera-repos/" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="aliyun" />
       <option name="name" value="阿里maven仓库" />
       <option name="url" value="https://maven.aliyun.com/repository/public" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="cloudera" />
+      <option name="name" value="cloudera" />
+      <option name="url" value="https://repository.cloudera.com/artifactory/cloudera-repos/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="zkd" />

@@ -25,8 +25,8 @@ public class WbComparisonBatchServer {
     private void initSpark() throws SparkDppException {
         // 初始话Spark相关配置
         SparkConf sparkConf = SparkInitConf.initSparkConfigs();
-        //sparkConf.setMaster("local[*]");
-        sparkConf.setAppName("wb comparison")
+        // sparkConf.setMaster("local[*]");
+        sparkConf.setAppName("wb olp check")
                 .set("spark.default.parallelism", "4")  // 官方推荐，task数量，设置成spark Application 总cpu core数量的2~3倍, cpu = Executor数量 * Executor内核数 = 2 * 2
                 .set("spark.sql.analyzer.failAmbiguousSelfJoin", "false");
         spark = SparkSession.builder().config(sparkConf).getOrCreate();
@@ -42,7 +42,7 @@ public class WbComparisonBatchServer {
         wbComparisonBatchEngine.start();
 
         /* 做单机种测试时，使用以下代码，并修改druid获取数据的代码部分 */
-        //WbComparisonBatchEngineTest wbComparisonBatchEngineTest = new WbComparisonBatchEngineTest(spark);
+        //wbComparisonBatchEngineTest wbComparisonBatchEngineTest = new WbComparisonBatchEngineTest(spark);
         //wbComparisonBatchEngineTest.start();
         log.warn("=========================Job运行结束===========================");
     }
@@ -51,7 +51,8 @@ public class WbComparisonBatchServer {
         try {
             new WbComparisonBatchServer().run();
         } catch (Exception e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            log.error("WbComparisonBatchServer run error", e);
         } finally {
             HttpConnectUtils.post("http://10.170.6.40:32767/job/api/updateJobStat", JSONObject.parseObject("{'wb_comparison_result':'0'}"));
             spark.stop();

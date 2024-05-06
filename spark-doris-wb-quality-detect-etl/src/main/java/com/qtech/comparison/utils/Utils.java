@@ -1,6 +1,5 @@
 package com.qtech.comparison.utils;
 
-import com.google.common.base.Strings;
 import com.qtech.comparison.ibatis.mapper.JobRunInfoMapper;
 import com.qtech.comparison.ibatis.mapper.StdModelsMapper;
 import com.qtech.comparison.ibatis.pojo.JobRunInfo;
@@ -22,7 +21,9 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Properties;
 
 import static com.qtech.comparison.ibatis.config.MapperInstance.getMapper;
 import static org.apache.spark.sql.functions.col;
@@ -94,7 +95,7 @@ public class Utils {
         return sdf.format(cal.getTime());
     }
 
-    public static String getNextJobRunDt(Dataset<Row> rawDF, int lagMinutes, String dtField) {
+    public static String getMaxDtAndOffset(Dataset<Row> rawDF, int lagMinutes, String dtField) {
         Dataset<Row> filterDF = rawDF.filter(dtField + " is not null");
         String dtStr = String.valueOf(filterDF.select(max(col(dtField)).alias(dtField)).head().get(0));
         String maxDt = dtStr.substring(0, 19);
@@ -105,16 +106,16 @@ public class Utils {
         return dtf.format(nextJobDt).replace("T", " ");
     }
 
-    public static String getNextJobRunDt(Dataset<Row> rawDF, Integer lagMinutes) {
+    public static String getMaxDtAndOffset(Dataset<Row> rawDF, Integer lagMinutes) {
         String timeField = "dt";
 
-        return getNextJobRunDt(rawDF, lagMinutes, timeField);
+        return getMaxDtAndOffset(rawDF, lagMinutes, timeField);
     }
 
-    public static String getNextJobRunDt(Dataset<Row> rawDF) {
+    public static String getMaxDtAndOffset(Dataset<Row> rawDF) {
         int lagMinutes = 0;
 
-        return getNextJobRunDt(rawDF, lagMinutes);
+        return getMaxDtAndOffset(rawDF, lagMinutes);
     }
 
     public static String offsetTime(String beginDt, int lagMinutes) {
@@ -251,5 +252,15 @@ public class Utils {
             conn.close();
             upsertPstm.close();
         }
+    }
+
+    public static Dataset<Row> getNeedFilterMcId(SparkSession ss, String postgresDriver, String postgresUrl, String postgresUser, String postgresPwd) {
+        return ss.read().format("jdbc")
+                .option("driver", postgresDriver)
+                .option("url", postgresUrl)
+                .option("dbtable", "(" + ComparisonInfo.NEED_FILTER_MCID_SQL.getStr() + ") tmp")
+                .option("user", postgresUser)
+                .option("password", postgresPwd)
+                .load();
     }
 }

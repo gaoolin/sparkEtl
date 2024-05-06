@@ -11,6 +11,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spark-doris-wb-quality-detect-etl</artifactId>
+    <packaging>jar</packaging>
+    <name>spark-doris-wb-quality-detect-etl</name>
+    <description>打线图离线程序点检任务</description>
+    <version>2.0</version>
 
     <properties>
         <!-- 编译时的编码 -->
@@ -109,6 +113,11 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.23</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -186,5 +195,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <finalName>spark-java-wb-olp-check-etl</finalName>
     </build>
 </project>

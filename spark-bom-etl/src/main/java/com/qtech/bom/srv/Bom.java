@@ -33,7 +33,7 @@ public class Bom {
 
     public void start() {
 
-        SparkConf sparkConf = new SparkConfig("AA BOM Job", "local[*]").initSparkConf();
+        SparkConf sparkConf = new SparkConfig("aa bom job").initSparkConf();
 
         SparkSession ss = SparkSession.builder().config(sparkConf).getOrCreate();
 
